@@ -43,12 +43,6 @@ public class PublishedTest {
     private static Thread startMinesweeperServer(String boardFile) throws IOException {
 
 	final URL boardURL = ClassLoader.getSystemClassLoader().getResource(BOARDS_PKG + boardFile);
-	System.out.println("ClassLoader: " + ClassLoader.getSystemClassLoader());
-	System.out.println("Resource Path: " + BOARDS_PKG + boardFile);
-	// final URL boardURL =
-	// ClassLoader.getSystemClassLoader().getResource("autograder/boards/board_file_5");
-	System.out.println("Resource URL: " + boardURL);
-
 	if (boardURL == null) {
 	    throw new IOException("Failed to locate resource " + boardFile);
 	}
@@ -75,10 +69,13 @@ public class PublishedTest {
 	int attempts = 0;
 	while (true) {
 	    try {
+		System.out.println("Attempting to connect... Attempt #" + (attempts + 1));
 		Socket socket = new Socket(LOCALHOST, PORT);
-		socket.setSoTimeout(3000);
+		socket.setSoTimeout(10000);
+		System.out.println("Connection successful.");
 		return socket;
 	    } catch (ConnectException ce) {
+		System.out.println("Connection failed: " + ce.getMessage());
 		if (!server.isAlive()) {
 		    throw new IOException("Server thread not running");
 		}

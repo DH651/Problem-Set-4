@@ -19,7 +19,15 @@ import minesweeper.Board;
 public class MinesweeperServer {
 
     // System thread safety argument
-    // TODO Problem 5
+    // 1. This class creates a separate thread for handling of each client
+    // connection.
+    // 2. Multiple clients can add flag to and/or remove flag from different tiles
+    // at a same time. Each client will acquire the lock associated with a
+    // particular
+    // tile.
+    // 3. Only one client will be able to dig at the board at a time, other tiles
+    // can add flag and/or remove flag during digging. Each client will acquire the
+    // lock associated with the entire board.
 
     /** Default server port. */
     private static final int DEFAULT_PORT = 4444;
@@ -37,7 +45,24 @@ public class MinesweeperServer {
 
     private int clientCount;
 
-    // TODO: Abstraction function, rep invariant, rep exposure
+    // AF(serverSocket, board, debug, clientCount) = A minesweeper server that
+    // allows clientCount clients to interact with a single minesweeper board.
+    // The server has following properties:
+    // 1. It will not terminate the client connection when the client digs at a tile
+    // containing a bomb, if debug flag is true.
+    // 2. The serverSocket listens to incoming connections from remote clients.
+
+    // Representation Invariant:
+    // 1. serverSocket, board, clientCount, and debug should not point to null
+    // 2. If the client digs at a tile containing a bomb and debug is off, send
+    // BOOM! message to the client and their connection must be disconnected.
+
+    // Representation Safety Argument
+    // 1. serverSocket, debug, board are private and final.
+    // 2. clientCount is private but not final, it is reassigned only in
+    // handleConnection method.
+    // 3. Creators of this class don't reveal internal representation
+    // 4. All the public methods of the class don't reveal internal representation.
 
     /**
      * Make a MinesweeperServer that listens for connections on port.
@@ -71,6 +96,7 @@ public class MinesweeperServer {
 
 		public void run() {
 		    try {
+			System.out.println("Startig a client in a new thread.....");
 			handleConnection(socket); // attempts to handle the client connection
 		    } catch (IOException ioe) {
 			ioe.printStackTrace(); // but don't terminate serve()
@@ -97,6 +123,7 @@ public class MinesweeperServer {
      *                     unexpectedly
      */
     private void handleConnection(Socket socket) throws IOException {
+	System.out.println("Handling client connection.....\n");
 	final BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	final PrintWriter outToClient = new PrintWriter(socket.getOutputStream(), true);
 	String helloMessage = String.format(
@@ -114,13 +141,22 @@ public class MinesweeperServer {
 	try {
 
 	    for (String line = inFromClient.readLine(); line != null; line = inFromClient.readLine()) {
+		System.out.println("inFromClient: " + line);
 		String output = handleRequest(line);
+		System.out.println("Debug: Output is: '" + output + "'");
+		System.out.println("\n");
 		outToClient.println(output);
 		outToClient.flush();
+		if (output.equals("BOOM!") && !debug) {
+		    // Client dug at a tile that had a bomb and debug flag is off, end the client
+		    // connection by breaking from this loop
+		    break;
+		}
+
 	    }
 
 	} catch (IOException exp) {
-	    // client has sent bye message, disconnect the client connections
+	    // Client sent "bye" message, end the client connections
 	    System.err.println("Client connection is terminated");
 
 	} finally {
@@ -172,9 +208,10 @@ public class MinesweeperServer {
 		// 'dig' request
 		boolean isRevealed = board.digAt(x, y);
 		if (isRevealed) {
-		    returnMessage = "BOOM!\n";
-		} else
+		    returnMessage = "BOOM!";
+		} else {
 		    returnMessage = board.toString();
+		}
 
 	    } else if (tokens[0].equals("flag")) {
 		// 'flag' request
@@ -188,6 +225,7 @@ public class MinesweeperServer {
 
 	    }
 	}
+
 	return returnMessage;
     }
 
@@ -334,15 +372,20 @@ public class MinesweeperServer {
 	    board = new Board(sizeX, sizeY);
 
 	} else if (file.isPresent()) {
+
 	    try {
+
 		// check if it has correct grammar (if not, throw error),
 		// otherwise, create a board by parsing the file.
 		String filePath = file.get().getPath();
 		if (checkGrammar(filePath)) {
 		    board = createBoard(filePath);
+
 		}
 	    } catch (RuntimeException exception) {
+
 		throw new IOException("Converted from RuntimeException: " + exception.getMessage(), exception);
+
 	    }
 
 	} else {
@@ -353,6 +396,7 @@ public class MinesweeperServer {
 
 	// create a Minesweeper server and run it.
 	MinesweeperServer server = new MinesweeperServer(port, debug, board);
+	System.out.println("Server thread started.....");
 	server.serve();
 
     }
@@ -371,11 +415,12 @@ public class MinesweeperServer {
      */
 
     private static boolean checkGrammar(String filePath) throws IOException {
+
 	try (BufferedReader readFromFile = new BufferedReader(new FileReader(filePath))) {
 
 	    // Checks if the files' header is in the specified format.
 	    String actualHeader = readFromFile.readLine();
-	    if (!Pattern.matches("\\d+\\s\\d+(\\n|\\r\\n?)", actualHeader)) {
+	    if (!Pattern.matches("\\d+\\s\\d+", actualHeader)) {
 		throw new RuntimeException("The header should contain , it didn't match the expected pattern.");
 	    }
 
@@ -386,10 +431,12 @@ public class MinesweeperServer {
 
 	    int actualHeight = 0;
 	    // Checks if the files' content matches the specified grammar.
-	    Pattern expectedBoardRow = Pattern.compile("((0|1)\\s)*(0|1)(\\n|\\r\\n?)");
-	    while (readFromFile.readLine() != null) {
-		String actualBoardRow = readFromFile.readLine();
+	    Pattern expectedBoardRow = Pattern.compile("((0|1)\\s)*(0|1)");
+	    String actualBoardRow = readFromFile.readLine();
+	    while (actualBoardRow != null) {
+
 		Matcher matcher = expectedBoardRow.matcher(actualBoardRow);
+
 		if (!matcher.matches()) {
 		    throw new RuntimeException(
 			    "Check the grammar of the board lines, it didn't match the expected pattern.");
@@ -400,6 +447,8 @@ public class MinesweeperServer {
 		    throw new RuntimeException("Board width does not match the specified width.");
 		}
 		actualHeight += 1;
+
+		actualBoardRow = readFromFile.readLine();
 
 	    }
 
@@ -438,8 +487,10 @@ public class MinesweeperServer {
 	    // get bomb location
 	    Set<List<Integer>> bombLocations = new HashSet<>();
 	    int actualHeight = 0;
-	    while (readFromFile.readLine() != null) {
-		String[] actualBoardRow = readFromFile.readLine().split(" ");
+	    String actualBoardRowString = readFromFile.readLine();
+	    while (actualBoardRowString != null) {
+
+		String[] actualBoardRow = actualBoardRowString.split(" ");
 		int actualWidth = 0;
 		for (String val : actualBoardRow) {
 		    if (Integer.valueOf(val) == 1) {
@@ -447,7 +498,10 @@ public class MinesweeperServer {
 		    }
 		    actualWidth += 1;
 		}
+
 		actualHeight += 1;
+
+		actualBoardRowString = readFromFile.readLine();
 	    }
 
 	    Board parsedBoard = new Board(Width, Height, bombLocations);

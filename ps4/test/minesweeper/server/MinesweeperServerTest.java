@@ -3,11 +3,18 @@
  */
 package minesweeper.server;
 
+import org.junit.Test;
+
+import autograder.PublishedTest;
+
 /**
  * TODO
  */
 public class MinesweeperServerTest {
-    
-    // TODO
-    
+
+    @Test(expected = AssertionError.class)
+    public void testAssertionsEnabled() {
+	assert false; // make sure assertions are enabled with VM argument: -ea
+    }
+
 }

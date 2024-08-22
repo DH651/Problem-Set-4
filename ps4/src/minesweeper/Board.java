@@ -91,13 +91,14 @@ public class Board {
 		}
 	    }
 	}
+
 	for (Integer tileNumber : tilesContainingBombs) {
 	    List<Integer> bombCoordinates = convertTo2DPosition(tileNumber);
 	    increaseBombCountOfNeighbor(bombCoordinates.get(0), bombCoordinates.get(1));
 	}
     }
 
-    public Board(int width, int height, Set<List<Integer>> tilesContainingBomb) {
+    public Board(int width, int height, Set<List<Integer>> tilesContainingBombs) {
 	this.width = width;
 	this.height = height;
 	this.tiles = new HashMap<>();
@@ -108,14 +109,15 @@ public class Board {
 	    for (int positionY = 0; positionY < height; positionY++) {
 		List<Integer> tileCoordinate = List.of(positionX, positionY);
 		Integer tileNumber = convertTo1DPosition(tileCoordinate.get(0), tileCoordinate.get(1));
-		if (tilesContainingBomb.contains(tileCoordinate)) {
+		if (tilesContainingBombs.contains(tileCoordinate)) {
+		    this.tilesContainingBombs.add(tileNumber);
 		    tiles.put(tileNumber, new Tile(positionX, positionY, true, false, false, true, 0));
 		} else {
 		    tiles.put(tileNumber, new Tile(positionX, positionY, true, false, false, false, 0));
 		}
 	    }
 	}
-	for (List<Integer> tileCoordinates : tilesContainingBomb) {
+	for (List<Integer> tileCoordinates : tilesContainingBombs) {
 	    increaseBombCountOfNeighbor(tileCoordinates.get(0), tileCoordinates.get(1));
 	}
     }
@@ -320,8 +322,18 @@ public class Board {
 	    for (int width = 0; width < this.width; width++) {
 		Tile tile = tiles.get(convertTo1DPosition(width, height));
 		result += tile.toString();
+
+		if (width == this.width - 1) {
+		    continue;
+		}
+
 		result += space;
 	    }
+
+	    if (height == this.height - 1) {
+		continue;
+	    }
+
 	    result += newline;
 	}
 
@@ -419,6 +431,7 @@ public class Board {
 		    tilesContainingBombs.remove(tileNumber);
 		    decreaseBombCountOfNeighbor(positionX, positionY); // decrease the bomb count of neighboring tiles.
 		    revealNeighbors(positionX, positionY); // reveal the neighboring tiles.
+		    result = true; // Contained bomb and it was blown off !
 
 		} else {
 
@@ -427,7 +440,7 @@ public class Board {
 		    tile.digUp();
 		    revealNeighbors(positionX, positionY); // reveal the neighboring tiles.
 		}
-		result = true;
+
 	    }
 	}
 
