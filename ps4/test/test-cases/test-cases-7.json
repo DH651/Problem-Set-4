@@ -1,0 +1,32 @@
+{
+	 "Before": {
+		"Width": 9,
+	        
+	    "Height": 9,
+	
+		"Digged" : [ ],
+	
+		"Flagged" : [  [0, 8], [4, 4], [8, 0] ],
+	
+		"Bombs" : [ ]
+	
+	  },
+	 
+	"Input": [   [0, 8], [4, 4], [8, 0] ],
+	
+	"After" : {
+	     "Width": 9,
+	        
+	     "Height": 9,	
+		
+		"Digged" : [   ],
+		
+		"Flagged" :  [  [0, 8], [4, 4], [8, 0] ],
+	
+	 	"Bombs" :  [  ]
+
+
+	  }
+ 
+}
+
