@@ -99,6 +99,7 @@ public class Board {
     }
 
     public Board(int width, int height, Set<List<Integer>> tilesContainingBombs) {
+	System.out.println("width: " + width + " height:" + height);
 	this.width = width;
 	this.height = height;
 	this.tiles = new HashMap<>();
@@ -110,6 +111,7 @@ public class Board {
 		List<Integer> tileCoordinate = List.of(positionX, positionY);
 		Integer tileNumber = convertTo1DPosition(tileCoordinate.get(0), tileCoordinate.get(1));
 		if (tilesContainingBombs.contains(tileCoordinate)) {
+		    System.out.println("X: " + positionX + " Y:" + positionY);
 		    this.tilesContainingBombs.add(tileNumber);
 		    tiles.put(tileNumber, new Tile(positionX, positionY, true, false, false, true, 0));
 		} else {
@@ -491,7 +493,7 @@ public class Board {
      * @return the row major index corresponding to the given (x,y) co-ordinate.
      */
     private Integer convertTo1DPosition(int positionX, int positionY) {
-	int tileNumber = positionX * width + positionY;
+	int tileNumber = positionY * width + positionX;
 	return Integer.valueOf(tileNumber);
     }
 
@@ -503,8 +505,8 @@ public class Board {
      * @return the (x,y) coordinates corresponding to the given row major index.
      */
     private List<Integer> convertTo2DPosition(int tileNumber) {
-	Integer positionX = Math.floorDiv(tileNumber, width);
-	Integer positionY = Math.floorMod(tileNumber, width);
+	Integer positionY = Math.floorDiv(tileNumber, width);
+	Integer positionX = Math.floorMod(tileNumber, width);
 	return List.of(positionX, positionY);
     }
 

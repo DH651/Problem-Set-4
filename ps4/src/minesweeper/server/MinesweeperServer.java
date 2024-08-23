@@ -141,9 +141,10 @@ public class MinesweeperServer {
 	try {
 
 	    for (String line = inFromClient.readLine(); line != null; line = inFromClient.readLine()) {
-		System.out.println("inFromClient: " + line);
+
+		System.out.println("input from client: " + line);
 		String output = handleRequest(line);
-		System.out.println("Debug: Output is: '" + output + "'");
+		System.out.println("Output to client: \n" + output);
 		System.out.println("\n");
 		outToClient.println(output);
 		outToClient.flush();
@@ -420,6 +421,7 @@ public class MinesweeperServer {
 
 	    // Checks if the files' header is in the specified format.
 	    String actualHeader = readFromFile.readLine();
+
 	    if (!Pattern.matches("\\d+\\s\\d+", actualHeader)) {
 		throw new RuntimeException("The header should contain , it didn't match the expected pattern.");
 	    }
