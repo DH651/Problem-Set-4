@@ -40,7 +40,7 @@ public class PublishedTest {
      * @return thread running the server
      * @throws IOException if the board file cannot be found
      */
-    private static Thread startMinesweeperServer(String boardFile) throws IOException {
+    protected static Thread startMinesweeperServer(String boardFile) throws IOException {
 
 	final URL boardURL = ClassLoader.getSystemClassLoader().getResource(BOARDS_PKG + boardFile);
 	if (boardURL == null) {
@@ -65,7 +65,7 @@ public class PublishedTest {
      * @return socket connected to the server
      * @throws IOException if the connection fails
      */
-    private static Socket connectToMinesweeperServer(Thread server) throws IOException {
+    protected static Socket connectToMinesweeperServer(Thread server) throws IOException {
 	int attempts = 0;
 	while (true) {
 	    try {
