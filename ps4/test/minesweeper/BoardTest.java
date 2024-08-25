@@ -25,11 +25,14 @@ import java.io.IOException;
 public class BoardTest {
 
     // Testing strategy for the Board
+    // Testing strategy for digAt(), addFlagAt(), removeFlagFrom()
     // Partition on tile status: tile is untouched, tile has been dug.
     // Partition on flag status: tile has flag, tile has no flag.
     // Partition on bomb presence: tile has bomb, tile has no bomb.
     // Partition on tile location: tile is on edge, tile is within board,
     // tile is outside the board.
+
+    // Testing strategy for digAt()
     // Partition on number of bombs in the neighborhood: No bombs, at-least one
     // bomb.
     // Partition on number of flags on neighboring tiles: No flags, at-least one

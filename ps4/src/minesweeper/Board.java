@@ -536,46 +536,6 @@ public class Board {
     }
 
     /**
-     * Checks whether their exist one or more flags in the neighborhood of a tile at
-     * the specified coordinates.
-     * 
-     * @param positionX, an x-coordinate of a given tile.
-     * @param positionY, an y-coordinate of a given tile.
-     * @return true if there exist at-least one flag in the neighbor of specified
-     *         tile, false otherwise.
-     */
-    private boolean neighborContainsFlag(int positionX, int positionY) {
-
-	// Obtain neighbors of this tile and for each tile check if it has a flag on it
-	// if yes return true, false otherwise.
-
-	Set<Integer> neighboringTiles = getNeighborsOf(positionX, positionY);
-	// removes all the tiles from neighboringTiles that are not in
-	// tilesContainingBombs
-	for (Integer tileNumber : neighboringTiles) {
-	    if (tilesContainingFlags.contains(tileNumber)) {
-		return true;
-	    }
-	}
-	return false;
-    }
-
-    /**
-     * Checks whether the tile at the given (x,y) co-ordinate has number of bombs
-     * equal to the specified bomb count, where x and y co-ordinates
-     *
-     * @param positionX, x co-ordinate of the given tile.
-     * @param positionY, y co-ordinate of the given tile.
-     * @param BombCount, number of bombs, must be non-negative
-     * @return true if the tile at given (x,y) co-ordinates has the specified number
-     *         of bombs in its neighborhood, false otherwise.
-     */
-    private boolean checkBombCount(int positionX, int positionY, int BombCount) {
-	Tile tile = tiles.get(convertTo1DPosition(positionX, positionY));
-	return tile.getBombCount() == BombCount;
-    }
-
-    /**
      * For each of the untouched neighbors of the given (x, y) tile, change their
      * status to dug, and for only those tiles recursively repeat this procedure.
      * The Neighborhood of tile is defined bas all the tiles whose tile number is in

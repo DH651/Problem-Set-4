@@ -3,8 +3,6 @@
  */
 package minesweeper.server;
 
-import static org.junit.Assert.fail;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;

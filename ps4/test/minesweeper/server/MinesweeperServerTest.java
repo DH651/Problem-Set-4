@@ -25,6 +25,13 @@ import org.junit.Test;
  */
 public class MinesweeperServerTest {
 
+    // Testing strategy
+    // Partition on Number of clients: one, more than one
+    // Partition on type of board creation: randomly generated, parsed from file
+    // Partition on type message sent by client: flag, deflag, dig, look, help, bye
+    // Partition on type message sent by server: Board message, Boom message, Hello
+    // message
+
     private static final String LOCALHOST = "127.0.0.1";
     private static final int PORT = 4000 + new Random().nextInt(1 << 15);
 
@@ -39,7 +46,7 @@ public class MinesweeperServerTest {
      * @return thread running the server
      * @throws IOException if the board file cannot be found
      */
-    protected static Thread startMinesweeperServer(String boardFile) throws IOException {
+    private Thread startMinesweeperServer(String boardFile) throws IOException {
 
 	final URL boardURL = ClassLoader.getSystemClassLoader().getResource(BOARDS_PKG + boardFile);
 	if (boardURL == null) {
@@ -64,7 +71,7 @@ public class MinesweeperServerTest {
      * @return socket connected to the server
      * @throws IOException if the connection fails
      */
-    protected static Socket connectToMinesweeperServer(Thread server) throws IOException {
+    private Socket connectToMinesweeperServer(Thread server) throws IOException {
 	int attempts = 0;
 	while (true) {
 	    try {
@@ -94,6 +101,9 @@ public class MinesweeperServerTest {
 	assert false; // make sure assertions are enabled with VM argument: -ea
     }
 
+    // more than one clients, parsed from file,
+    // flag, deflag, dig, look, help, bye sent by client
+    // Board message, Boom message, Hello message
     @Test(timeout = 10000)
     public void gameSimulation() throws IOException {
 
